@@ -11,9 +11,24 @@ test_data = [
 ]
 
 
-@pytest.fixture
-def silly_grade_boundaries():
-    return {
+@pytest.mark.parametrize("mark, grade", test_data)
+def test_correct_grades(mark, grade):
+    grade_boundaries = {
+        'MAX': 350,
+        'A*': 264,
+        'A': 229,
+        'B': 189,
+        'C': 150,
+        'D': 111,
+        'E': 72,
+        'U': 0,
+        'MIN': 0
+    }
+    assert main.calc_grades(mark, grade_boundaries) == grade
+
+
+def test_invalid_grade_boundaries():
+    silly_grade_boundaries = {
         'MAX': 350,
         'A*': 264,
         'A': 269,
@@ -25,10 +40,12 @@ def silly_grade_boundaries():
         'MIN': 0
     }
 
+    with pytest.raises(ValueError):
+        main.calc_grades(0, silly_grade_boundaries)
 
-@pytest.fixture
-def grade_boundaries():
-    return {
+
+def test_invalid_values():
+    grade_boundaries = {
         'MAX': 350,
         'A*': 264,
         'A': 229,
@@ -40,21 +57,17 @@ def grade_boundaries():
         'MIN': 0
     }
 
+    # Too big
 
-@pytest.mark.parametrize("mark, grade", test_data)
-def test_a_function(mark, grade, grade_boundaries):
-    assert main.calc_grades(mark, grade_boundaries) == grade
-
-
-def test_invalid_grade_boundaries(silly_grade_boundaries):
-    with pytest.raises(ValueError):
-        main.calc_grades(0, silly_grade_boundaries)
-
-
-def test_invalid_values(grade_boundaries):
     with pytest.raises(ValueError):
         main.calc_grades(500, grade_boundaries)
+
+    # Too negative
+
     with pytest.raises(ValueError):
         main.calc_grades(-1, grade_boundaries)
+
+    # Wrong type
+
     with pytest.raises(TypeError):
         main.calc_grades('A', grade_boundaries)  # type:ignore
